@@ -2,12 +2,9 @@
 # -*- coding: utf-8 -*-
 
 #
-# forked form https://www.jimkim.de/high-fidelity/digital-music-player-with-raspberry-pi-and-volumio/
-#
+# forked from https://www.jimkim.de/high-fidelity/digital-music-player-with-raspberry-pi-and-volumio/
 #
 
-
- 
 import subprocess
 import textwrap
 import time
@@ -37,6 +34,7 @@ def sigterm_handler(signal, frame):
   lcd.set_cursor(0,0)
   line1 = ('      Volumio 1.55      ')[0:lcd_columns]
   line2 = ('    shutting down...    ')[0:lcd_columns]
+
   lcd.message(line1 + '\n' + line2 )
   sys.exit(0)
  
@@ -44,30 +42,33 @@ signal.signal(signal.SIGTERM, sigterm_handler)
  
 def replace_specialchars(message):
   try:
-    # message = message.encode('utf-8')
+#    message = message.encode('utf-8')
     message = message.replace('ä', chr(228))
     message = message.replace('ö', chr(246))
     message = message.replace('ü', chr(252))
-    # message = message.replace('Ä', chr(196))
-    # message = message.replace('Ö', chr(214))
-    # message = message.replace('Ü', chr(220))
-    # message = message.replace('ß', chr(223))
-    # message = message.replace('°', chr(223))
-    # message = message.replace('µ', chr(228))
-    # message = message.replace('´', chr(96))
-    # message = message.replace('€', chr(227))
-    # message = message.replace('–', '-')
-    # message = message.replace('“', '"')
-    # message = message.replace('”', '"')
-    # message = message.replace('„', '"')
-    # message = message.replace('’', '\'')
-    # message = message.replace('‘', '\'')
-    # message = message.replace('è', '232');
-    # message = message.replace('é', '233');
-    # message = message.replace('ê', 'e');
-    # message = message.replace('á', '225');
-    # message = message.replace('à', '224');
-    # message = message.prelace('â', 'a');
+#    message = message.replace('(', '-')
+#    message = message.replace(')', ' ')
+
+#    message = message.replace('Ä', chr(196))
+#    message = message.replace('Ö', chr(214))
+#    message = message.replace('Ü', chr(220))
+#    message = message.replace('ß', chr(223))
+#    message = message.replace('°', chr(223))
+#    message = message.replace('µ', chr(228))
+#    message = message.replace('´', chr(96))
+#    message = message.replace('€', chr(227))
+#    message = message.replace('–', '-')
+#    message = message.replace('“', '"')
+#    message = message.replace('”', '"')
+#    message = message.replace('„', '"')
+#    message = message.replace('’', '\'')
+#    message = message.replace('‘', '\'')
+    message = message.replace('è' 'e')
+    message = message.replace('é''e')
+    message = message.replace('ê', '')
+    message = message.replace('á' 'a')
+    message = message.replace('à','a')
+    message = message.prelace('â' 'a')
   except:
     return message;
   return message
@@ -77,7 +78,8 @@ def main():
   # print welcome message
   line1 = '      Volumio 1.55      '
   line2 = '  initializing system   '
-  lcd.message(line1 + '\n' + line2)
+  line3 = line4 = ''
+  lcd.message(line1 + '\n' + line2 + '\n' + line3+ '\n' + line4)
  
   # create custom char (...) = three dots in one character
   char_threeDots = [0b00000,0b00000,0b00000,0b00000,0b00000,0b00000,0b10101,0b00000]
@@ -139,52 +141,37 @@ def main():
         while len(infoSong) < (lcd_columns -1):
           infoSong = ' ' + infoSong + ' '
         infoSong = infoSong + '        '
- 
-        # extract a string like '2:01/3:43 (54%)' 
-        # from the string '[playing] #2/8   2:01/4:38 (50%)'
-        infoLine = statusLines[1].split(']',1)[1].strip()
-        # remove first character ('#')
-        # format aftwerwards: 2/8   2:01/4:38 (50%)
-        infoLine = infoLine[1:]
-        infoTrack = infoLine.split(' ',1)[0].strip()
-        infoTimes = infoLine.split(' ',1)[1].strip()
-        # split of (50%)
-        infoTimes = infoTimes.split('(',1)[0].strip()
-        infoTotalPlaytime = infoTimes.split('/',1)[1].strip()
         
-
+        #
+        # get bitrate from volumio
+        # alter native : cat /proc/asound/card1/pcm0p/sub0/hw_params
+        #
         vprocess = subprocess.Popen('volumio status', shell=True, stdout=subprocess.PIPE)
         vstatus = vprocess.communicate()[0]
-
-        data = json.loads(vstatus)
         
-        bitrate =  data["samplerate"] + " - " +  data["bitdepth"]
+        bitrat=''
+        data = json.loads(vstatus)
+        try: bitrate =  data["samplerate"] + " - " +  data["bitdepth"]
+        except KeyError: pass
+ 
+      # extract a string like '2:01/3:43 (54%)' 
+      # from the string '[playing] #2/8   2:01/4:38 (50%)'
+      infoLine = statusLines[1].split(']',1)[1].strip()
+      # remove first character ('#')
+      # format aftwerwards: 2/8   2:01/4:38 (50%)
+      infoLine = infoLine[1:]
+      infoTrack = infoLine.split(' ',1)[0].strip()
+      infoTimes = infoLine.split(' ',1)[1].strip()
+      # split of (50%)
+      #infoTimes = infoTimes.split('(',1)[0].strip()
+      infoTotalPlaytime = infoTimes.split('/',1)[1].strip()
+        
 
       # toggle artist / track info 
       if z > 40:
         z = 0
- 
-      if z == 0:            
-        # show song title and total play time / track
-        lcd.set_cursor(0,0)
-        #line3 = (infoSong)[0:lcd_columns]
-        line3 = (infoLine)[0:lcd_columns]
-        #line4 = ('Time: '+infoTotalPlaytime)[0:lcd_columns]
 
-        line4 = (bitrate)[0:lcd_columns]
-
-        while len(line3) < (lcd_columns -1):
-          line3 = ' ' + line3 + ' '
-        while len(line4) < (lcd_columns -1):
-          line4 = ' ' + line4 + ' '
-        if infoPlayerStatus == '[paused]':
-          line4 = '    [playing paused]    '
-        # clean special chars
-        #line3 = replace_specialchars(line1)
-        # line4 = replace_specialchars(line2)
-        lcd.message(line1 + '\n' + line2 + '\n' + line3 + '\n' + line4 )
- 
-      if z == 10:
+      if z == 0:
         # show song title and artist
         lcd.set_cursor(0,0)
         line1 = (infoSong)[0:lcd_columns]
@@ -193,6 +180,23 @@ def main():
         line1 = replace_specialchars(line1)
         line2 = replace_specialchars(line2)
         lcd.message(line1 + '\n' + line2 + '\n' + line3 + '\n' + line4 )
+
+ 
+      # show song title and total play time / track
+      lcd.set_cursor(0,0)
+      line3 = (infoTimes)[0:lcd_columns]
+      line4 = (bitrate)[0:lcd_columns]
+
+      while len(line3) < (lcd_columns -1):
+        line3 = ' ' + line3 + ' '
+      while len(line4) < (lcd_columns -1):
+        line4 = ' ' + line4 + ' '
+      if infoPlayerStatus == '[paused]':
+        line4 = '    [playing paused]    '
+      line1 = replace_specialchars(line1)
+      line2 = replace_specialchars(line2)
+      lcd.message(line1 + '\n' + line2 + '\n' + line3 + '\n' + line4 )
+
  
     else:
       # message when stopped
@@ -206,7 +210,7 @@ def main():
         stoppedSet = 1
  
     # sleep 0.5s
-    time.sleep(0.5)
+    time.sleep(1)
     z += 1
  
 if __name__ == '__main__':
