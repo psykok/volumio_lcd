@@ -1,0 +1,18 @@
+[Unit]
+Description=LCD Volumio
+After=volumio.service
+ 
+[Service]
+Type=simple
+# Type=idle
+
+#User=deluge
+#Group=deluge
+#UMask=007
+ 
+ExecStart=/usr/bin/python /root/volumio_lcd/volumio_lcd.py 
+ 
+Restart=on-failure
+ 
+[Install]
+WantedBy=multi-user.target
