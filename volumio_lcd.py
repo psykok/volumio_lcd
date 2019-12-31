@@ -15,12 +15,13 @@ import json
 import Adafruit_CharLCD as LCD
  
 # Raspberry Pi gpio pin configuration
-lcd_rs        = 7
-lcd_en        = 8
+lcd_rs        = 24
+lcd_en        = 23
 lcd_d4        = 25
-lcd_d5        = 24
-lcd_d6        = 23
-lcd_d7        = 18
+lcd_d5        = 22
+lcd_d6        = 27
+lcd_d7        = 17
+
 lcd_backlight = 26
  
 # define LCD column and row size for LCD
@@ -192,7 +193,7 @@ def main():
       while len(line4) < (lcd_columns -1):
         line4 = ' ' + line4 + ' '
       if infoPlayerStatus == '[paused]':
-        line4 = '    [playing paused]    '
+        line4 = '  [playing paused]  '
       line1 = replace_specialchars(line1)
       line2 = replace_specialchars(line2)
       lcd.message(line1 + '\n' + line2 + '\n' + line3 + '\n' + line4 )
